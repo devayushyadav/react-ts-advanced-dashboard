@@ -1,5 +1,6 @@
 import usePagination from "./usePagination";
 import useSearch from "./useSearch";
+import useSort from "./useSort";
 
 type User = {
   name: string;
@@ -10,13 +11,16 @@ type Props = {
   items: Array<User>;
   searchKey: keyof User /*(key of user means name | email)*/;
   renderItem: (item: User) => React.ReactNode;
+  sortKey: keyof User;
 };
 
-const SearchableList = ({ items, searchKey, renderItem }: Props) => {
+const SearchableList = ({ items, searchKey, renderItem, sortKey }: Props) => {
   const { query, setQuery, filteredItems } = useSearch(items, searchKey);
 
+  const { sortedItems, toggleOrder, order } = useSort(filteredItems, sortKey);
+
   const { currentPage, totalPages, paginatedItems, nextPage, prevPage } =
-    usePagination(filteredItems, 3);
+    usePagination(sortedItems, 3);
 
   return (
     <div style={{ maxWidth: "300px", margin: "auto" }}>
@@ -28,6 +32,10 @@ const SearchableList = ({ items, searchKey, renderItem }: Props) => {
         placeholder={`Search by ${String(searchKey)}...`}
         style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
       />
+
+      <button onClick={toggleOrder} style={{ marginBottom: "10px" }}>
+        Sort by {String(sortKey)} ({order})
+      </button>
 
       {/* List */}
       <ul style={{ listStyle: "none", padding: 0 }}>
