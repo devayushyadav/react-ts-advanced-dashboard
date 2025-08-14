@@ -63,52 +63,56 @@ const SearchableList = ({
 
       {/* List with Animation */}
       <ul style={{ listStyle: "none", padding: 0 }}>
-        <AnimatePresence mode="popLayout">
-          {paginatedItems.map((item) => (
-            <motion.li
-              key={item.id}
-              style={{
-                padding: "6px 0",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                borderBottom: "1px solid #eee",
-              }}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => e.key === "Enter" && onItemClick?.(item)}
-              initial={{ opacity: 0, y: 10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.95 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-            >
-              <span
-                style={{ cursor: "pointer" }}
-                onClick={() => onItemClick?.(item)}
-              >
-                {renderItem(item)}
-              </span>
-              <AddOrEdituser
-                setUsers={setUsers}
-                variant="edit"
-                editingUser={item}
-              />
-              <button
+        {filteredItems.length > 0 ? (
+          <AnimatePresence mode="popLayout">
+            {paginatedItems.map((item) => (
+              <motion.li
+                key={item.id}
                 style={{
-                  background: "#f44336",
-                  color: "#fff",
-                  border: "none",
-                  padding: "4px 8px",
-                  borderRadius: "4px",
-                  cursor: "pointer",
+                  padding: "6px 0",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  borderBottom: "1px solid #eee",
                 }}
-                onClick={() => deleteUser(item.id)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === "Enter" && onItemClick?.(item)}
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
               >
-                Delete
-              </button>
-            </motion.li>
-          ))}
-        </AnimatePresence>
+                <span
+                  style={{ cursor: "pointer" }}
+                  onClick={() => onItemClick?.(item)}
+                >
+                  {renderItem(item)}
+                </span>
+                <AddOrEdituser
+                  setUsers={setUsers}
+                  variant="edit"
+                  editingUser={item}
+                />
+                <button
+                  style={{
+                    background: "#f44336",
+                    color: "#fff",
+                    border: "none",
+                    padding: "4px 8px",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => deleteUser(item.id)}
+                >
+                  Delete
+                </button>
+              </motion.li>
+            ))}
+          </AnimatePresence>
+        ) : (
+          <div>No result found</div>
+        )}
       </ul>
 
       {/* Pagination Controls */}
