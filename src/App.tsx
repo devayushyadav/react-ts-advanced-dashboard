@@ -1,5 +1,5 @@
 import "./App.css";
-import UserList from "./Components/SearchableList/UserList";
+import UserList from "./Components/UserDashboard/UserList";
 
 function App() {
   return (

@@ -1,5 +1,3 @@
-import { useState } from "react";
-import Modal from "../Modal/Modal";
 import usePagination from "./usePagination";
 import useSearch from "./useSearch";
 import useSort from "./useSort";
@@ -14,17 +12,22 @@ type Props = {
   searchKey: keyof User /*(key of user means name | email)*/;
   renderItem: (item: User) => React.ReactNode;
   sortKey: keyof User;
+  onItemClick?: (item: User) => void; // ✅ Parent handles modal
 };
 
-const SearchableList = ({ items, searchKey, renderItem, sortKey }: Props) => {
+const SearchableList = ({
+  items,
+  searchKey,
+  renderItem,
+  sortKey,
+  onItemClick,
+}: Props) => {
   const { query, setQuery, filteredItems } = useSearch(items, searchKey);
 
   const { sortedItems, toggleOrder, order } = useSort(filteredItems, sortKey);
 
   const { currentPage, totalPages, paginatedItems, nextPage, prevPage } =
     usePagination(sortedItems, 3);
-
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   return (
     <div style={{ maxWidth: "300px", margin: "auto" }}>
@@ -47,21 +50,12 @@ const SearchableList = ({ items, searchKey, renderItem, sortKey }: Props) => {
           <li
             key={index}
             style={{ padding: "4px 0" }}
-            onClick={() => setSelectedUser(item)}
+            onClick={() => onItemClick?.(item)}
           >
             {renderItem(item)}
           </li>
         ))}
       </ul>
-
-      <Modal isOpen={!!selectedUser} onClose={() => setSelectedUser(null)}>
-        {selectedUser && (
-          <>
-            <h2>{selectedUser.name}</h2>
-            <p>{selectedUser.email}</p>
-          </>
-        )}
-      </Modal>
 
       {/* Pagination Controls */}
       <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
