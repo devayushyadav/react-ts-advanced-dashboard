@@ -3,7 +3,7 @@ import usePagination from "./usePagination";
 import useSearch from "./useSearch";
 import useSort from "./useSort";
 import { useState } from "react";
-import AddUser from "./Adduser";
+import AddOrEdituser from "./AddOrEdituser";
 import type { User } from "../Types/Types";
 
 type Props = {
@@ -26,6 +26,11 @@ const SearchableList = ({
   const { sortedItems, toggleOrder, order } = useSort(filteredItems, sortKey);
   const { currentPage, totalPages, paginatedItems, nextPage, prevPage } =
     usePagination(sortedItems, 3);
+
+  // DELETE USER FUNCTION
+  const deleteUser = (id: string) => {
+    setUsers((prev) => prev.filter((user) => user.id !== id));
+  };
 
   return (
     <div
@@ -53,7 +58,7 @@ const SearchableList = ({
         <button onClick={toggleOrder}>
           Sort by {String(sortKey)} ({order})
         </button>
-        <AddUser setUsers={setUsers} />
+        <AddOrEdituser setUsers={setUsers} variant="add" />
       </div>
 
       {/* List with Animation */}
@@ -61,18 +66,46 @@ const SearchableList = ({
         <AnimatePresence mode="popLayout">
           {paginatedItems.map((item) => (
             <motion.li
-              key={item.email}
-              style={{ padding: "4px 0", cursor: "pointer" }}
+              key={item.id}
+              style={{
+                padding: "6px 0",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                borderBottom: "1px solid #eee",
+              }}
               role="button"
               tabIndex={0}
-              onClick={() => onItemClick?.(item)}
               onKeyDown={(e) => e.key === "Enter" && onItemClick?.(item)}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
+              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
             >
-              {renderItem(item)}
+              <span
+                style={{ cursor: "pointer" }}
+                onClick={() => onItemClick?.(item)}
+              >
+                {renderItem(item)}
+              </span>
+              <AddOrEdituser
+                setUsers={setUsers}
+                variant="edit"
+                editingUser={item}
+              />
+              <button
+                style={{
+                  background: "#f44336",
+                  color: "#fff",
+                  border: "none",
+                  padding: "4px 8px",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+                onClick={() => deleteUser(item.id)}
+              >
+                Delete
+              </button>
             </motion.li>
           ))}
         </AnimatePresence>

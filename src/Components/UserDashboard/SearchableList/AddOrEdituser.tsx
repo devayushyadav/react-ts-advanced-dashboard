@@ -1,29 +1,43 @@
-// AddUser.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Modal from "../Modal/Modal";
 import type { User } from "../Types/Types";
 
 type Props = {
   setUsers: React.Dispatch<React.SetStateAction<User[]>>;
+  variant: "edit" | "add";
+  editingUser?: User;
 };
 
-const AddUser = ({ setUsers }: Props) => {
+const AddOrEditUser = ({ setUsers, variant, editingUser }: Props) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formValues, setFormValues] = useState<User>({
-    id: crypto.randomUUID(),
+    id: "",
     name: "",
     email: "",
   });
 
+  useEffect(() => {
+    if (variant === "edit" && editingUser) {
+      setFormValues(editingUser);
+    } else if (variant === "add") {
+      setFormValues({ id: "", name: "", email: "" });
+    }
+  }, [editingUser, variant, isModalOpen]);
+
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  const handleAdd = () => {
+  const handleSave = () => {
     if (!formValues.name.trim() || !formValues.email.trim()) return;
 
-    setUsers((prev) => [{ ...formValues }, ...prev]);
+    if (variant === "add") {
+      setUsers((prev) => [{ ...formValues, id: crypto.randomUUID() }, ...prev]);
+    } else {
+      setUsers((prev) =>
+        prev.map((user) => (user.id === formValues.id ? formValues : user))
+      );
+    }
 
-    setFormValues({ id: "", name: "", email: "" });
     closeModal();
   };
 
@@ -31,7 +45,7 @@ const AddUser = ({ setUsers }: Props) => {
     <>
       <button
         style={{
-          background: "#4cafef",
+          background: variant === "add" ? "#4cafef" : "#ff9800",
           color: "#fff",
           border: "none",
           padding: "8px 12px",
@@ -40,10 +54,14 @@ const AddUser = ({ setUsers }: Props) => {
         }}
         onClick={openModal}
       >
-        + Add
+        {variant === "add" ? "+ Add" : "Edit"}
       </button>
 
-      <Modal isOpen={isModalOpen} onClose={closeModal} title="Add User">
+      <Modal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        title={variant === "add" ? "Add User" : "Edit User"}
+      >
         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
           <input
             type="text"
@@ -77,16 +95,16 @@ const AddUser = ({ setUsers }: Props) => {
 
           <button
             style={{
-              background: "#4caf50",
+              background: variant === "add" ? "#4caf50" : "#ff9800",
               color: "#fff",
               border: "none",
               padding: "10px",
               borderRadius: "4px",
               cursor: "pointer",
             }}
-            onClick={handleAdd}
+            onClick={handleSave}
           >
-            Add User
+            {variant === "add" ? "Add User" : "Save Changes"}
           </button>
         </div>
       </Modal>
@@ -94,4 +112,4 @@ const AddUser = ({ setUsers }: Props) => {
   );
 };
 
-export default AddUser;
+export default AddOrEditUser;
