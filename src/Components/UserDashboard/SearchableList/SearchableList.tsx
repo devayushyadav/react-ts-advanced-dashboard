@@ -1,3 +1,4 @@
+import { motion, AnimatePresence } from "framer-motion";
 import usePagination from "./usePagination";
 import useSearch from "./useSearch";
 import useSort from "./useSort";
@@ -23,14 +24,15 @@ const SearchableList = ({
   onItemClick,
 }: Props) => {
   const { query, setQuery, filteredItems } = useSearch(items, searchKey);
-
   const { sortedItems, toggleOrder, order } = useSort(filteredItems, sortKey);
-
   const { currentPage, totalPages, paginatedItems, nextPage, prevPage } =
     usePagination(sortedItems, 3);
 
   return (
-    <div style={{ maxWidth: "300px", margin: "auto" }}>
+    <div
+      className="searchable-list"
+      style={{ maxWidth: "300px", margin: "auto" }}
+    >
       {/* Search Box */}
       <input
         type="text"
@@ -40,21 +42,31 @@ const SearchableList = ({
         style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
       />
 
+      {/* Sort Button */}
       <button onClick={toggleOrder} style={{ marginBottom: "10px" }}>
         Sort by {String(sortKey)} ({order})
       </button>
 
-      {/* List */}
+      {/* List with Animation */}
       <ul style={{ listStyle: "none", padding: 0 }}>
-        {paginatedItems.map((item, index) => (
-          <li
-            key={index}
-            style={{ padding: "4px 0" }}
-            onClick={() => onItemClick?.(item)}
-          >
-            {renderItem(item)}
-          </li>
-        ))}
+        <AnimatePresence mode="popLayout">
+          {paginatedItems.map((item) => (
+            <motion.li
+              key={item.email}
+              style={{ padding: "4px 0", cursor: "pointer" }}
+              role="button"
+              tabIndex={0}
+              onClick={() => onItemClick?.(item)}
+              onKeyDown={(e) => e.key === "Enter" && onItemClick?.(item)}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              {renderItem(item)}
+            </motion.li>
+          ))}
+        </AnimatePresence>
       </ul>
 
       {/* Pagination Controls */}

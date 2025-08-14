@@ -1,5 +1,5 @@
+import { createPortal } from "react-dom";
 import { useEffect } from "react";
-import ReactDOM from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
 type ModalProps = {
@@ -19,63 +19,49 @@ const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
-  // Close modal on backdrop click
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
-  return ReactDOM.createPortal(
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="modal-backdrop"
-          onClick={handleBackdropClick}
+          key="backdrop"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
           style={{
             position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0,0,0,0.5)",
+            inset: 0,
+            background: "rgba(0,0,0,0.4)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             zIndex: 1000,
           }}
+          onClick={onClose}
         >
           <motion.div
-            role="dialog"
-            aria-modal="true"
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 200, damping: 20 }}
+            key="modal"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
             style={{
-              background: "#fff",
+              background: "white",
               padding: "20px",
-              borderRadius: "10px",
-              width: "400px",
-              maxWidth: "90%",
-              boxShadow: "0 4px 15px rgba(0,0,0,0.3)",
+              borderRadius: "8px",
+              minWidth: "280px",
+              boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
             }}
+            onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside
           >
-            {title && <h2 style={{ marginBottom: "10px" }}>{title}</h2>}
-            <div>{children}</div>
+            {title && <h2 style={{ marginTop: 0 }}>{title}</h2>}
+            {children}
             <button
               onClick={onClose}
               style={{
-                marginTop: "15px",
-                padding: "8px 16px",
-                background: "#007BFF",
-                color: "#fff",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
+                marginTop: "10px",
+                display: "block",
+                marginLeft: "auto",
               }}
             >
               Close
