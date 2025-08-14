@@ -1,9 +1,5 @@
 import { useMemo, useState } from "react";
-
-type User = {
-  name: string;
-  email: string;
-};
+import type { User } from "../Types/Types";
 
 type sort = "asc" | "desc";
 

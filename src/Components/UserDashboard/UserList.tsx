@@ -1,29 +1,30 @@
 import { useState } from "react";
 import SearchableList from "./SearchableList/SearchableList";
 import Modal from "./Modal/Modal";
-
-type User = {
-  name: string;
-  email: string;
-};
+import type { User } from "./Types/Types";
 
 const users: User[] = [
-  { name: "Ayush Yadav", email: "ayush@example.com" },
-  { name: "John Doe", email: "john@example.com" },
-  { name: "Jane Smith", email: "jane@example.com" },
-  { name: "Alice Johnson", email: "alice@example.com" },
-  { name: "Bob Marley", email: "bob@example.com" },
-  { name: "Charlie Puth", email: "charlie@example.com" },
+  { id: crypto.randomUUID(), name: "Ayush Yadav", email: "ayush@example.com" },
+  { id: crypto.randomUUID(), name: "John Doe", email: "john@example.com" },
+  { id: crypto.randomUUID(), name: "Jane Smith", email: "jane@example.com" },
+  {
+    id: crypto.randomUUID(),
+    name: "Alice Johnson",
+    email: "alice@example.com",
+  },
+  { id: crypto.randomUUID(), name: "Bob Marley", email: "bob@example.com" },
+  {
+    id: crypto.randomUUID(),
+    name: "Charlie Puth",
+    email: "charlie@example.com",
+  },
 ];
 
 const UserList = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [selectedUser, setSelectedUser] = useState<{
-    name: string;
-    email: string;
-  } | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-  const openModal = (user: { name: string; email: string }) => {
+  const openModal = (user: User) => {
     setSelectedUser(user);
     setIsModalOpen(true);
   };

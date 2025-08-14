@@ -1,9 +1,5 @@
 import { useMemo, useState } from "react";
-
-type User = {
-  name: string;
-  email: string;
-};
+import type { User } from "../Types/Types";
 
 const usePagination = (items: Array<User>, itemsPerPage: number) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -28,7 +24,14 @@ const usePagination = (items: Array<User>, itemsPerPage: number) => {
     setCurrentPage(validPage);
   };
 
-  return { currentPage, nextPage,totalPages, prevPage, goToPage, paginatedItems };
+  return {
+    currentPage,
+    nextPage,
+    totalPages,
+    prevPage,
+    goToPage,
+    paginatedItems,
+  };
 };
 
 export default usePagination;

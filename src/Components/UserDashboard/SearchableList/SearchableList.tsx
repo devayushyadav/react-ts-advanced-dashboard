@@ -2,11 +2,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import usePagination from "./usePagination";
 import useSearch from "./useSearch";
 import useSort from "./useSort";
-
-type User = {
-  name: string;
-  email: string;
-};
+import { useState } from "react";
+import AddUser from "./Adduser";
+import type { User } from "../Types/Types";
 
 type Props = {
   items: Array<User>;
@@ -23,7 +21,8 @@ const SearchableList = ({
   sortKey,
   onItemClick,
 }: Props) => {
-  const { query, setQuery, filteredItems } = useSearch(items, searchKey);
+  const [users, setUsers] = useState<Array<User>>(items);
+  const { query, setQuery, filteredItems } = useSearch(users, searchKey);
   const { sortedItems, toggleOrder, order } = useSort(filteredItems, sortKey);
   const { currentPage, totalPages, paginatedItems, nextPage, prevPage } =
     usePagination(sortedItems, 3);
@@ -42,10 +41,20 @@ const SearchableList = ({
         style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
       />
 
-      {/* Sort Button */}
-      <button onClick={toggleOrder} style={{ marginBottom: "10px" }}>
-        Sort by {String(sortKey)} ({order})
-      </button>
+      <div
+        style={{
+          marginBottom: "10px",
+          display: "flex",
+          flexDirection: "row",
+          gap: "10px",
+        }}
+      >
+        {/* Sort Button */}
+        <button onClick={toggleOrder}>
+          Sort by {String(sortKey)} ({order})
+        </button>
+        <AddUser setUsers={setUsers} />
+      </div>
 
       {/* List with Animation */}
       <ul style={{ listStyle: "none", padding: 0 }}>
