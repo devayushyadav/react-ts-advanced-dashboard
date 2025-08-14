@@ -2,23 +2,26 @@ import { useState } from "react";
 import SearchableList from "./SearchableList/SearchableList";
 import Modal from "./Modal/Modal";
 import type { User } from "./Types/Types";
+import { LocalstorageKeys } from "../../Constants/Contants";
 
-const users: User[] = [
-  { id: crypto.randomUUID(), name: "Ayush Yadav", email: "ayush@example.com" },
-  { id: crypto.randomUUID(), name: "John Doe", email: "john@example.com" },
-  { id: crypto.randomUUID(), name: "Jane Smith", email: "jane@example.com" },
-  {
-    id: crypto.randomUUID(),
-    name: "Alice Johnson",
-    email: "alice@example.com",
-  },
-  { id: crypto.randomUUID(), name: "Bob Marley", email: "bob@example.com" },
-  {
-    id: crypto.randomUUID(),
-    name: "Charlie Puth",
-    email: "charlie@example.com",
-  },
-];
+// const users: User[] = [
+//   { id: crypto.randomUUID(), name: "Ayush Yadav", email: "ayush@example.com" },
+//   { id: crypto.randomUUID(), name: "John Doe", email: "john@example.com" },
+//   { id: crypto.randomUUID(), name: "Jane Smith", email: "jane@example.com" },
+//   {
+//     id: crypto.randomUUID(),
+//     name: "Alice Johnson",
+//     email: "alice@example.com",
+//   },
+//   { id: crypto.randomUUID(), name: "Bob Marley", email: "bob@example.com" },
+//   {
+//     id: crypto.randomUUID(),
+//     name: "Charlie Puth",
+//     email: "charlie@example.com",
+//   },
+// ];
+
+const users = JSON.parse(localStorage.getItem(LocalstorageKeys.USERS) || "[]");
 
 const UserList = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -37,11 +40,13 @@ const UserList = () => {
   return (
     <div style={{ padding: "20px" }}>
       <h2>Searchable User List</h2>
-      <SearchableList
+      <SearchableList<User>
         items={users}
         searchKey="name"
         sortKey="name"
         onItemClick={openModal}
+        paginationCount={3}
+        localStorageKey={LocalstorageKeys.USERS}
         renderItem={(user: User) => (
           <>
             <strong>{user.name}</strong>

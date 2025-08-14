@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
-import type { User } from "../Types/Types";
 
-const useSearch = (items: Array<User>, searchKey: "name" | "email" | "id") => {
+const useSearch = <T>(items: Array<T>, searchKey: keyof T) => {
   const [query, setQuery] = useState<string>("");
 
   const filteredItems = useMemo(() => {

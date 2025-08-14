@@ -1,9 +1,8 @@
 import { useMemo, useState } from "react";
-import type { User } from "../Types/Types";
 
 type sort = "asc" | "desc";
 
-const useSort = (items: Array<User>, sortKey: keyof User) => {
+const useSort = <T>(items: Array<T>, sortKey: keyof T) => {
   const [order, setOrder] = useState<sort>("asc");
 
   const sortedItems = useMemo(() => {

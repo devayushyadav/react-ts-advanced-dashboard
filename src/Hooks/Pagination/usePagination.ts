@@ -1,10 +1,17 @@
-import { useMemo, useState } from "react";
-import type { User } from "../Types/Types";
+import { useEffect, useMemo, useState } from "react";
 
-const usePagination = (items: Array<User>, itemsPerPage: number) => {
+const usePagination = <T>(
+  items: Array<T>,
+  itemsPerPage: number,
+  query: string
+) => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const totalPages = Math.ceil(items.length / itemsPerPage);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [query]);
 
   const paginatedItems = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;

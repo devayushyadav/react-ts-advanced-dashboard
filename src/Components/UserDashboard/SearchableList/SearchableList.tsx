@@ -1,35 +1,45 @@
 import { motion, AnimatePresence } from "framer-motion";
-import usePagination from "./usePagination";
-import useSearch from "./useSearch";
-import useSort from "./useSort";
-import { useState } from "react";
-import AddOrEdituser from "./AddOrEdituser";
-import type { User } from "../Types/Types";
+import usePagination from "../../../Hooks/Pagination/usePagination";
+import { useEffect, useState } from "react";
+import AddOrEditData from "./AddOrEditData";
+import useSearch from "../../../Hooks/Search/useSearch";
+import useSort from "../../../Hooks/Sort/useSort";
 
-type Props = {
-  items: Array<User>;
-  searchKey: keyof User /*(key of user means name | email)*/;
-  renderItem: (item: User) => React.ReactNode;
-  sortKey: keyof User;
-  onItemClick?: (item: User) => void; // ✅ Parent handles modal
+type Props<T extends { id: string }> = {
+  items: Array<T>;
+  searchKey: keyof T /*(key of user means name | email)*/;
+  renderItem: (item: T) => React.ReactNode;
+  sortKey: keyof T;
+  onItemClick?: (item: T) => void; // ✅ Parent handles modal
+  paginationCount: number;
+  localStorageKey: string;
 };
 
-const SearchableList = ({
+const SearchableList = <T extends { id: string }>({
   items,
   searchKey,
   renderItem,
   sortKey,
   onItemClick,
-}: Props) => {
-  const [users, setUsers] = useState<Array<User>>(items);
-  const { query, setQuery, filteredItems } = useSearch(users, searchKey);
-  const { sortedItems, toggleOrder, order } = useSort(filteredItems, sortKey);
+  localStorageKey,
+  paginationCount,
+}: Props<T>) => {
+  const [data, setData] = useState<Array<T>>(items);
+  const { query, setQuery, filteredItems } = useSearch<T>(data, searchKey);
+  const { sortedItems, toggleOrder, order } = useSort<T>(
+    filteredItems,
+    sortKey
+  );
   const { currentPage, totalPages, paginatedItems, nextPage, prevPage } =
-    usePagination(sortedItems, 3);
+    usePagination<T>(sortedItems, paginationCount, query);
+
+  useEffect(() => {
+    localStorage.setItem(localStorageKey, JSON.stringify(data));
+  }, [data, localStorageKey]);
 
   // DELETE USER FUNCTION
   const deleteUser = (id: string) => {
-    setUsers((prev) => prev.filter((user) => user.id !== id));
+    setData((prev) => prev.filter((user) => user.id !== id));
   };
 
   return (
@@ -58,12 +68,12 @@ const SearchableList = ({
         <button onClick={toggleOrder}>
           Sort by {String(sortKey)} ({order})
         </button>
-        <AddOrEdituser setUsers={setUsers} variant="add" />
+        <AddOrEditData<T> setData={setData} variant="add" />
       </div>
 
       {/* List with Animation */}
       <ul style={{ listStyle: "none", padding: 0 }}>
-        {filteredItems.length > 0 ? (
+        {filteredItems.length > 0 && (
           <AnimatePresence mode="popLayout">
             {paginatedItems.map((item) => (
               <motion.li
@@ -89,10 +99,10 @@ const SearchableList = ({
                 >
                   {renderItem(item)}
                 </span>
-                <AddOrEdituser
-                  setUsers={setUsers}
+                <AddOrEditData<T>
+                  setData={setData}
                   variant="edit"
-                  editingUser={item}
+                  editingItem={item}
                 />
                 <button
                   style={{
@@ -110,8 +120,21 @@ const SearchableList = ({
               </motion.li>
             ))}
           </AnimatePresence>
-        ) : (
-          <div>No result found</div>
+        )}
+
+        {filteredItems.length === 0 && (
+          <div
+            style={{
+              textAlign: "center",
+              padding: "20px",
+              border: "1px dashed #ccc",
+              borderRadius: "8px",
+              color: "#777",
+            }}
+          >
+            <p>No results match your search</p>
+            <small>Try adjusting your query or adding a new item.</small>
+          </div>
         )}
       </ul>
 

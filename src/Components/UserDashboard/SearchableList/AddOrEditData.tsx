@@ -1,28 +1,35 @@
 import { useState, useEffect } from "react";
 import Modal from "../Modal/Modal";
-import type { User } from "../Types/Types";
 
-type Props = {
-  setUsers: React.Dispatch<React.SetStateAction<User[]>>;
+type Props<T extends { id: string; name: string; email: string }> = {
+  setData: React.Dispatch<React.SetStateAction<T[]>>;
   variant: "edit" | "add";
-  editingUser?: User;
+  editingItem?: T;
 };
 
-const AddOrEditUser = ({ setUsers, variant, editingUser }: Props) => {
+const AddOrEditData = <T extends { id: string; name: string; email: string }>({
+  setData,
+  variant,
+  editingItem,
+}: Props<T>) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formValues, setFormValues] = useState<User>({
-    id: "",
-    name: "",
-    email: "",
-  });
+  const [formValues, setFormValues] = useState<T>({
+    id: "" as string,
+    name: "" as string,
+    email: "" as string,
+  } as T);
 
   useEffect(() => {
-    if (variant === "edit" && editingUser) {
-      setFormValues(editingUser);
+    if (variant === "edit" && editingItem) {
+      setFormValues(editingItem);
     } else if (variant === "add") {
-      setFormValues({ id: "", name: "", email: "" });
+      setFormValues({
+        id: "" as string,
+        name: "" as string,
+        email: "" as string,
+      } as T);
     }
-  }, [editingUser, variant, isModalOpen]);
+  }, [editingItem, variant, isModalOpen]);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -31,10 +38,13 @@ const AddOrEditUser = ({ setUsers, variant, editingUser }: Props) => {
     if (!formValues.name.trim() || !formValues.email.trim()) return;
 
     if (variant === "add") {
-      setUsers((prev) => [{ ...formValues, id: crypto.randomUUID() }, ...prev]);
+      setData((prev) => [
+        { ...formValues, id: crypto.randomUUID() } as T,
+        ...prev,
+      ]);
     } else {
-      setUsers((prev) =>
-        prev.map((user) => (user.id === formValues.id ? formValues : user))
+      setData((prev) =>
+        prev.map((item) => (item.id === formValues.id ? formValues : item))
       );
     }
 
@@ -60,7 +70,7 @@ const AddOrEditUser = ({ setUsers, variant, editingUser }: Props) => {
       <Modal
         isOpen={isModalOpen}
         onClose={closeModal}
-        title={variant === "add" ? "Add User" : "Edit User"}
+        title={variant === "add" ? "Add Item" : "Edit Item"}
       >
         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
           <input
@@ -104,7 +114,7 @@ const AddOrEditUser = ({ setUsers, variant, editingUser }: Props) => {
             }}
             onClick={handleSave}
           >
-            {variant === "add" ? "Add User" : "Save Changes"}
+            {variant === "add" ? "Add" : "Save"}
           </button>
         </div>
       </Modal>
@@ -112,4 +122,4 @@ const AddOrEditUser = ({ setUsers, variant, editingUser }: Props) => {
   );
 };
 
-export default AddOrEditUser;
+export default AddOrEditData;

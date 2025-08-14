@@ -1,16 +1,16 @@
-import useCounter from "./useCounterHook"
+import useCounter from "../../Hooks/IncreamentCounter/useCounterHook";
 
 const Counter = () => {
-    const { count , increment } = useCounter({initialValue : 10})
+  const { count, increment } = useCounter({ initialValue: 10 });
 
-    return <div className="card">
-        <button onClick={increment}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-}
+  return (
+    <div className="card">
+      <button onClick={increment}>count is {count}</button>
+      <p>
+        Edit <code>src/App.tsx</code> and save to test HMR
+      </p>
+    </div>
+  );
+};
 
-export default Counter
+export default Counter;
