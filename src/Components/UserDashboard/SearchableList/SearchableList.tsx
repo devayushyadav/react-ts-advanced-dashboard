@@ -1,16 +1,15 @@
-import { motion, AnimatePresence } from "framer-motion";
 import usePagination from "../../../Hooks/Pagination/usePagination";
 import { useEffect, useState } from "react";
 import AddOrEditData from "./AddOrEditData";
 import useSearch from "../../../Hooks/Search/useSearch";
 import useSort from "../../../Hooks/Sort/useSort";
+import Table from "../../../ReusableComponents/Table/table";
 
 type Props<T extends { id: string }> = {
   items: Array<T>;
-  searchKey: keyof T /*(key of user means name | email)*/;
-  renderItem: (item: T) => React.ReactNode;
+  searchKey: keyof T;
   sortKey: keyof T;
-  onItemClick?: (item: T) => void; // ✅ Parent handles modal
+  onItemClick?: (item: T) => void;
   paginationCount: number;
   localStorageKey: string;
 };
@@ -18,13 +17,14 @@ type Props<T extends { id: string }> = {
 const SearchableList = <T extends { id: string }>({
   items,
   searchKey,
-  renderItem,
   sortKey,
-  onItemClick,
   localStorageKey,
   paginationCount,
+  onItemClick,
 }: Props<T>) => {
   const [data, setData] = useState<Array<T>>(items);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
   const { query, setQuery, filteredItems } = useSearch<T>(data, searchKey);
   const { sortedItems, toggleOrder, order } = useSort<T>(
     filteredItems,
@@ -37,15 +37,46 @@ const SearchableList = <T extends { id: string }>({
     localStorage.setItem(localStorageKey, JSON.stringify(data));
   }, [data, localStorageKey]);
 
-  // DELETE USER FUNCTION
+  // DELETE SINGLE
   const deleteUser = (id: string) => {
     setData((prev) => prev.filter((user) => user.id !== id));
+    setSelectedIds((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(id);
+      return newSet;
+    });
   };
+
+  // DELETE MULTIPLE
+  const deleteSelected = () => {
+    setData((prev) => prev.filter((user) => !selectedIds.has(user.id)));
+    setSelectedIds(new Set());
+  };
+
+  // TOGGLE SELECTION
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const allSelected =
+    paginatedItems.length > 0 && selectedIds.size === paginatedItems.length;
 
   return (
     <div
       className="searchable-list"
-      style={{ maxWidth: "300px", margin: "auto" }}
+      style={{
+        maxWidth: "600px",
+        width: "100vh",
+        margin: "auto",
+      }}
     >
       {/* Search Box */}
       <input
@@ -61,85 +92,73 @@ const SearchableList = <T extends { id: string }>({
           marginBottom: "10px",
           display: "flex",
           flexDirection: "row",
-          gap: "10px",
+          justifyContent: "space-between",
         }}
       >
-        {/* Sort Button */}
-        <button onClick={toggleOrder}>
-          Sort by {String(sortKey)} ({order})
-        </button>
+        {selectedIds.size > 0 && (
+          <button
+            style={{
+              background: "#f44336",
+              color: "#fff",
+              border: "none",
+              padding: "6px 12px",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+            onClick={deleteSelected}
+          >
+            Delete Selected ({selectedIds.size})
+          </button>
+        )}
+
         <AddOrEditData<T> setData={setData} variant="add" />
       </div>
 
-      {/* List with Animation */}
-      <ul style={{ listStyle: "none", padding: 0 }}>
-        {filteredItems.length > 0 && (
-          <AnimatePresence mode="popLayout">
-            {paginatedItems.map((item) => (
-              <motion.li
-                key={item.id}
-                style={{
-                  padding: "6px 0",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  borderBottom: "1px solid #eee",
-                }}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => e.key === "Enter" && onItemClick?.(item)}
-                initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
-              >
-                <span
-                  style={{ cursor: "pointer" }}
-                  onClick={() => onItemClick?.(item)}
-                >
-                  {renderItem(item)}
-                </span>
-                <AddOrEditData<T>
-                  setData={setData}
-                  variant="edit"
-                  editingItem={item}
-                />
-                <button
-                  style={{
-                    background: "#f44336",
-                    color: "#fff",
-                    border: "none",
-                    padding: "4px 8px",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                  }}
-                  onClick={() => deleteUser(item.id)}
-                >
-                  Delete
-                </button>
-              </motion.li>
-            ))}
-          </AnimatePresence>
-        )}
-
-        {filteredItems.length === 0 && (
+      <Table<T>
+        data={paginatedItems}
+        sortKey={sortKey}
+        order={order}
+        toggleOrder={toggleOrder}
+        selectedIds={selectedIds}
+        toggleSelect={toggleSelect}
+        renderActions={(item) => (
           <div
             style={{
-              textAlign: "center",
-              padding: "20px",
-              border: "1px dashed #ccc",
-              borderRadius: "8px",
-              color: "#777",
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-around",
             }}
           >
-            <p>No results match your search</p>
-            <small>Try adjusting your query or adding a new item.</small>
+            <AddOrEditData<T>
+              setData={setData}
+              variant="edit"
+              editingItem={item}
+            />
+            <button
+              style={{
+                background: "#f44336",
+                color: "#fff",
+                border: "none",
+                padding: "4px 8px",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+              onClick={() => deleteUser(item.id)}
+            >
+              Delete
+            </button>
           </div>
         )}
-      </ul>
+        onItemClick={onItemClick}
+        columns={[
+          { key: "name" as keyof T, label: "Name" },
+          { key: "email" as keyof T, label: "Email" },
+        ]}
+        allSelected={allSelected}
+      />
 
       {/* Pagination Controls */}
-      <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
+      <div style={{ margin: "40px auto" }}>
         <button onClick={prevPage} disabled={currentPage === 1}>
           Prev
         </button>
