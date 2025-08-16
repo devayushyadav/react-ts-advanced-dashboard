@@ -15,7 +15,9 @@ type TableProps<T> = {
   toggleOrder: (key: keyof T) => void;
   renderActions?: (item: T) => React.ReactNode;
   selectedIds?: Set<string>;
+  allSelected?: boolean;
   toggleSelect?: (id: string) => void;
+  toggleSelectAll?: () => void;
 };
 
 const Table = <T extends { id: string }>({
@@ -28,6 +30,8 @@ const Table = <T extends { id: string }>({
   onItemClick,
   selectedIds,
   toggleSelect,
+  allSelected,
+  toggleSelectAll,
 }: TableProps<T>) => {
   return (
     <table
@@ -39,7 +43,15 @@ const Table = <T extends { id: string }>({
     >
       <thead>
         <tr>
-          {toggleSelect && <StyledTableHeader>Select</StyledTableHeader>}
+          {toggleSelect && (
+            <StyledTableHeader>
+              <input
+                type="checkbox"
+                checked={allSelected}
+                onChange={toggleSelectAll}
+              />
+            </StyledTableHeader>
+          )}
           {columns.map((col) => (
             <StyledTableHeader
               key={String(col.key)}
@@ -91,7 +103,7 @@ const Table = <T extends { id: string }>({
           ))
         ) : (
           <tr>
-            <td colSpan={columns.length + (renderActions ? 1 : 0)}>
+            <td colSpan={columns.length + (renderActions ? 2 : 1)}>
               <div
                 style={{ textAlign: "center", padding: "1rem", color: "#999" }}
               >

@@ -69,6 +69,27 @@ const SearchableList = <T extends { id: string }>({
   const allSelected =
     paginatedItems.length > 0 && selectedIds.size === paginatedItems.length;
 
+  // inside SearchableList
+
+  // TOGGLE ALL SELECTION (for current page)
+  const toggleSelectAll = () => {
+    if (allSelected) {
+      // unselect all on current page
+      setSelectedIds((prev) => {
+        const newSet = new Set(prev);
+        paginatedItems.forEach((item) => newSet.delete(item.id));
+        return newSet;
+      });
+    } else {
+      // select all on current page
+      setSelectedIds((prev) => {
+        const newSet = new Set(prev);
+        paginatedItems.forEach((item) => newSet.add(item.id));
+        return newSet;
+      });
+    }
+  };
+
   return (
     <div
       className="searchable-list"
@@ -95,6 +116,8 @@ const SearchableList = <T extends { id: string }>({
           justifyContent: "space-between",
         }}
       >
+        <AddOrEditData<T> setData={setData} variant="add" />
+
         {selectedIds.size > 0 && (
           <button
             style={{
@@ -110,8 +133,6 @@ const SearchableList = <T extends { id: string }>({
             Delete Selected ({selectedIds.size})
           </button>
         )}
-
-        <AddOrEditData<T> setData={setData} variant="add" />
       </div>
 
       <Table<T>
@@ -121,6 +142,7 @@ const SearchableList = <T extends { id: string }>({
         toggleOrder={toggleOrder}
         selectedIds={selectedIds}
         toggleSelect={toggleSelect}
+        toggleSelectAll={toggleSelectAll}
         renderActions={(item) => (
           <div
             style={{
