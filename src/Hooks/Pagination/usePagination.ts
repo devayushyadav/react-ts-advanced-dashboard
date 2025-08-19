@@ -1,44 +1,34 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState, useMemo } from "react";
 
-const usePagination = <T>(
-  items: Array<T>,
-  itemsPerPage: number,
-  query: string
-) => {
+function usePagination<T>(items: T[], initialPageSize: number = 5) {
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(initialPageSize);
 
-  const totalPages = Math.ceil(items.length / itemsPerPage);
+  const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [query]);
+  // Ensure currentPage never exceeds totalPages
+  const safePage = Math.min(currentPage, totalPages);
 
   const paginatedItems = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return items.slice(startIndex, startIndex + itemsPerPage);
-  }, [items, currentPage, itemsPerPage]);
+    const start = (safePage - 1) * pageSize;
+    return items.slice(start, start + pageSize);
+  }, [items, safePage, pageSize]);
 
-  const nextPage = () => {
-    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-  };
-
-  const prevPage = () => {
-    setCurrentPage((prev) => Math.max(prev - 1, 1));
-  };
-
-  const goToPage = (page: number) => {
-    const validPage = Math.max(1, Math.min(page, totalPages));
-    setCurrentPage(validPage);
-  };
+  const nextPage = () => setCurrentPage((p) => (p < totalPages ? p + 1 : p));
+  const prevPage = () => setCurrentPage((p) => (p > 1 ? p - 1 : p));
+  const goToPage = (page: number) =>
+    setCurrentPage(Math.min(Math.max(1, page), totalPages));
 
   return {
-    currentPage,
-    nextPage,
+    currentPage: safePage,
     totalPages,
-    prevPage,
-    goToPage,
     paginatedItems,
+    pageSize,
+    setPageSize,
+    setCurrentPage: goToPage,
+    nextPage,
+    prevPage,
   };
-};
+}
 
 export default usePagination;

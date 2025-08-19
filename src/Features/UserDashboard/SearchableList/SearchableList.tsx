@@ -1,10 +1,11 @@
-import usePagination from "../../../Hooks/Pagination/usePagination";
 import { useEffect, useState } from "react";
 import AddOrEditData from "./AddOrEditData";
 import useSearch from "../../../Hooks/Search/useSearch";
 import useSort from "../../../Hooks/Sort/useSort";
 import Table from "../../../ReusableComponents/Table/table";
 import SearchBox from "../../../ReusableComponents/SearchBox/SearchBox";
+import Pagination from "../../../ReusableComponents/Pagination/Pagination";
+import usePagination from "../../../Hooks/Pagination/usePagination";
 
 type Props<T extends { id: string }> = {
   items: Array<T>;
@@ -31,8 +32,17 @@ const SearchableList = <T extends { id: string }>({
     filteredItems,
     sortKey
   );
-  const { currentPage, totalPages, paginatedItems, nextPage, prevPage } =
-    usePagination<T>(sortedItems, paginationCount, query);
+
+  const {
+    currentPage,
+    totalPages,
+    paginatedItems,
+    nextPage,
+    prevPage,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+  } = usePagination<T>(sortedItems, paginationCount);
 
   useEffect(() => {
     localStorage.setItem(localStorageKey, JSON.stringify(data));
@@ -179,18 +189,15 @@ const SearchableList = <T extends { id: string }>({
         allSelected={allSelected}
       />
 
-      {/* Pagination Controls */}
-      <div style={{ margin: "40px auto" }}>
-        <button onClick={prevPage} disabled={currentPage === 1}>
-          Prev
-        </button>
-        <span>
-          {currentPage} / {totalPages}
-        </span>
-        <button onClick={nextPage} disabled={currentPage === totalPages}>
-          Next
-        </button>
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPrev={prevPage}
+        onNext={nextPage}
+        onPageChange={setCurrentPage}
+        pageSize={pageSize}
+        onPageSizeChange={setPageSize}
+      />
     </div>
   );
 };
