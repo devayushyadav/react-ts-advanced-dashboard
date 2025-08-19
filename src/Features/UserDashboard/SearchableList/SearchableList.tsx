@@ -4,6 +4,7 @@ import AddOrEditData from "./AddOrEditData";
 import useSearch from "../../../Hooks/Search/useSearch";
 import useSort from "../../../Hooks/Sort/useSort";
 import Table from "../../../ReusableComponents/Table/table";
+import SearchBox from "../../../ReusableComponents/SearchBox/SearchBox";
 
 type Props<T extends { id: string }> = {
   items: Array<T>;
@@ -100,12 +101,11 @@ const SearchableList = <T extends { id: string }>({
       }}
     >
       {/* Search Box */}
-      <input
-        type="text"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
+      <SearchBox
+        query={query}
+        setQuery={setQuery}
         placeholder={`Search by ${String(searchKey)}...`}
-        style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
+        styles={{}}
       />
 
       <div

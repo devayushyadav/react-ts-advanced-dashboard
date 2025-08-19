@@ -1,6 +1,6 @@
 import { useState } from "react";
 import SearchableList from "./SearchableList/SearchableList";
-import Modal from "./Modal/Modal";
+import Modal from "../../ReusableComponents/Modal/Modal";
 import { LocalstorageKeys } from "../../Constants/Contants";
 import type { User } from "../../Types/Types";
 

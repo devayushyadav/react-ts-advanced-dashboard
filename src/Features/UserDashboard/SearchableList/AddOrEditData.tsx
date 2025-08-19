@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Modal from "../Modal/Modal";
+import Modal from "../../../ReusableComponents/Modal/Modal";
 
 type Props<T extends { id: string; name: string; email: string }> = {
   setData: React.Dispatch<React.SetStateAction<T[]>>;
