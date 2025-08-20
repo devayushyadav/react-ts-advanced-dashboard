@@ -3,6 +3,7 @@ import SearchableList from "./SearchableList/SearchableList";
 import Modal from "../../ReusableComponents/Modal/Modal";
 import { LocalstorageKeys } from "../../Constants/Contants";
 import type { User } from "../../Types/Types";
+import { ListProvider } from "../../Context/ListContext/ListContext";
 
 const users = JSON.parse(localStorage.getItem(LocalstorageKeys.USERS) || "[]");
 
@@ -23,14 +24,15 @@ const UserList = () => {
   return (
     <div style={{ padding: "20px" }}>
       <h2>Searchable User List</h2>
-      <SearchableList<User>
-        items={users}
-        searchKey="name"
-        sortKey="name"
-        onItemClick={openModal}
-        paginationCount={3}
-        localStorageKey={LocalstorageKeys.USERS}
-      />
+      <ListProvider initialData={users}>
+        <SearchableList<User>
+          searchKey="name"
+          sortKey="name"
+          onItemClick={openModal}
+          paginationCount={3}
+          localStorageKey={LocalstorageKeys.USERS}
+        />
+      </ListProvider>
 
       <Modal
         isOpen={isModalOpen}

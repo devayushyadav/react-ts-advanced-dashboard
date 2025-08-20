@@ -6,9 +6,9 @@ import Table from "../../../ReusableComponents/Table/table";
 import SearchBox from "../../../ReusableComponents/SearchBox/SearchBox";
 import Pagination from "../../../ReusableComponents/Pagination/Pagination";
 import usePagination from "../../../Hooks/Pagination/usePagination";
+import { useList } from "../../../Context/ListContext/useList";
 
 type Props<T extends { id: string }> = {
-  items: Array<T>;
   searchKey: keyof T;
   sortKey: keyof T;
   onItemClick?: (item: T) => void;
@@ -17,14 +17,13 @@ type Props<T extends { id: string }> = {
 };
 
 const SearchableList = <T extends { id: string }>({
-  items,
   searchKey,
   sortKey,
   localStorageKey,
   paginationCount,
   onItemClick,
 }: Props<T>) => {
-  const [data, setData] = useState<Array<T>>(items);
+  const { data, setData } = useList<T>();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const { query, setQuery, filteredItems } = useSearch<T>(data, searchKey);
